@@ -3,7 +3,7 @@ import {useEffect, useRef, useState} from "react";
 import {useCreateChannelMessage, useGetChannel, useGetChannelMessages} from "@/hooks/useChannels.js";
 import MessageArea from "@/components/ui/MessageArea.jsx";
 import Avatar from "boring-avatars";
-import {ukTimeFormatter} from "@/lib/utils.js";
+import {capitalise, ukTimeFormatter} from "@/lib/utils.js";
 import {socket} from "@/socket.js";
 import {queryClient} from "@/react-query/queryClient.js";
 import {queryKeys} from "@/react-query/constants.js";
@@ -14,6 +14,7 @@ export default function ChannelPage() {
     const latestMessageRef = useRef()
     const {channelId} = useParams();
     const {data: channel} = useGetChannel(channelId)
+    console.log(channel)
     const [input, setInput] = useState("");
     const createMessageMutation = useCreateChannelMessage(channelId)
     const [isTyping, setIsTyping] = useState(false)
@@ -32,7 +33,6 @@ export default function ChannelPage() {
     useEffect(() => {
 
         const handleUserTyping = ({username}) => {
-            console.log("before setting to true")
             setTypingUser(username)
             setIsTyping(true)
             debouncedStopTyping()
@@ -90,7 +90,6 @@ export default function ChannelPage() {
 
         createMessageMutation.mutate(message, {
             onSuccess: (returnedData) => {
-                console.log("message: ", returnedData)
                 setInput("");
             }
         });
@@ -98,7 +97,6 @@ export default function ChannelPage() {
 
     function handleOnChange(e) {
         setInput(e.target.value)
-        console.log("Emitting typing")
         socket.emit("typing", {
             channel_id: channelId,
         });
@@ -108,9 +106,9 @@ export default function ChannelPage() {
     return (
         <div className="flex h-screen flex-col">
             <header className="border-b border-zinc-800 p-5">
-                <h1 className="text-xl font-bold"># {channelName}</h1>
+                <h1 className="text-xl font-bold"># {channelName ?? (channelName)}</h1>
                 <p className="text-sm text-zinc-400">
-                    {organisation?.name}
+                    {capitalise(organisation?.name)}
                 </p>
             </header>
 

@@ -18,9 +18,6 @@ export default function OrganisationWorkspace() {
         sendMessage,
     } = useOutletContext();
 
-    console.warn("ORGANISATION ID:", organisationId);
-    console.log("channels:", channels);
-
     return (
         <div>
             <header className="bg-emerald-700 p-5">

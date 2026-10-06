@@ -14,3 +14,7 @@ export function ukTimeFormatter(time) {
     const utcTime = time.endsWith('Z') ? time : `${time}Z`;
     return dayjs.utc(utcTime).local().format('HH:mm');
 }
+
+export function capitalise(word){
+    return word.charAt(0).toUpperCase() + word.slice(1)
+}

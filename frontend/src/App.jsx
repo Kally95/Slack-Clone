@@ -49,17 +49,14 @@ export default function App() {
 
     useEffect(() => {
         function onConnect() {
-            console.log("Connected with id:", socket.id);
             setIsConnected(true);
         }
 
         function onDisconnect() {
-            console.log("Disconnected");
             setIsConnected(false);
         }
 
         function onServerMessage(data) {
-            console.log("Message from server:", data);
             setMessages((prev) => [...prev, data.text]);
         }
 

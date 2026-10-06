@@ -67,6 +67,7 @@ import {useCookies} from "react-cookie";
 import api from "@/api/client.js";
 import {useMutation} from "@tanstack/react-query";
 import CreateChannelModal from "@/components/CreateChannelModal.jsx";
+import {capitalise} from "@/lib/utils.js";
 
 const addMemberSchema = z.object({
     email: z.email("Enter a valid email"),
@@ -242,7 +243,6 @@ export default function OrganisationLayout() {
         return <Navigate to="/app" replace/>;
     }
 
-
     return (
         <SidebarProvider>
 
@@ -254,7 +254,7 @@ export default function OrganisationLayout() {
                         {organisation ? (
                             <span className="flex items-center gap-2">
 
-                                {organisation.name}
+                                {capitalise(organisation.name)}
 
                                 <SquareArrowRightExit
                                     className="ml-auto h-4 w-4"

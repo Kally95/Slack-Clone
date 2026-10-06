@@ -18,11 +18,9 @@ async function getChannelById(channelId){
 }
 
 async function createChannelMessage({ channelId, body }) {
-    console.log(channelId, body)
   const { data } = await api.post(`/channels/${channelId}/messages`, {
     body,
   });
-    console.log(data)
   return data.message_data;
 }
 
@@ -33,7 +31,7 @@ async function getChannelMessages(channelId){
 
 export function useChannels(organisationId) {
   return useQuery({
-    queryKey: [queryKeys.channels, organisationId],
+    queryKey: [queryKeys.channels, "list", organisationId],
     queryFn: () => getOrganisationChannels(organisationId),
     enabled: !!organisationId,
   });
@@ -42,7 +40,7 @@ export function useChannels(organisationId) {
 export function useGetChannel(channelId){
     return useQuery({
         queryFn: () => getChannelById(channelId),
-        queryKey: [queryKeys.channels, channelId]
+        queryKey: [queryKeys.channels, "detail", channelId]
     })
 }
 
@@ -59,7 +57,6 @@ export function useCreateChannel(organisationId){
 
 export function useCreateChannelMessage(channelId) {
   const queryClient = useQueryClient();
-    console.log(typeof channelId)
   return useMutation({
     mutationFn: (body) =>
       createChannelMessage({ channelId, body }),

@@ -73,8 +73,18 @@ export function useOrganisation(organisationId) {
     return useQuery({
         queryKey: [queryKeys.organisations, organisationId],
         queryFn: () => getOrganisation(organisationId),
-        enabled: !!organisationId
-    })
+        enabled: !!organisationId,
+
+        retry: (failureCount, error) => {
+            const status = error?.response?.status;
+
+            if (status === 403 || status === 404) {
+                return false;
+            }
+
+            return failureCount < 3;
+        },
+    });
 }
 
 export function useCreateOrganisation() {

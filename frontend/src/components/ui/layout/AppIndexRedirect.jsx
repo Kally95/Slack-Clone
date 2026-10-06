@@ -19,6 +19,15 @@ export default function AppIndexRedirect() {
         );
     }
 
+    if (cookies.currentOrganisation) {
+        return (
+            <Navigate
+                to={`/app/organisations/${cookies.currentOrganisation}`}
+                replace
+            />
+        );
+    }
+
     return (
         <div className="ml-16 flex min-h-screen items-center justify-center">
             <div className="text-center">

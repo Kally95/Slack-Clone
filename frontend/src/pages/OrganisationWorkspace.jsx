@@ -15,7 +15,7 @@ export default function OrganisationWorkspace() {
     console.log(organisation, isConnected)
     console.log("123123123")
     return (
-        <div className="ml-16">
+        <div>
             <header className="bg-emerald-700 p-5">
                 <h1 className="text-xl font-bold underline">
                     {organisation?.name}

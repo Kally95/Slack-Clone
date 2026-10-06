@@ -66,23 +66,18 @@ import {
 import {useCookies} from "react-cookie";
 import api from "@/api/client.js";
 import {useMutation} from "@tanstack/react-query";
-
+import CreateChannelModal from "@/components/CreateChannelModal.jsx";
 
 const addMemberSchema = z.object({
     email: z.email("Enter a valid email"),
 });
-
-const createChannelSchema = z.object({
-    name: z.string().min(1, "Channel name is required"),
-});
-
 
 export default function OrganisationLayout() {
     const {isConnected} = useOutletContext();
     const {user, logout} = useAuth();
     const navigate = useNavigate();
     const {organisationId} = useParams();
-
+    const [open, setOpen] = useState(false);
     /*
      * This is the gatekeeper query.
      *
@@ -138,7 +133,7 @@ export default function OrganisationLayout() {
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
     const [addMemberOpen, setAddMemberOpen] = useState(false);
-    const [createChannelOpen, setCreateChannelOpen] = useState(false);
+
 
     const isAdmin =
         organisation?.current_user_membership?.admin === true;
@@ -148,18 +143,11 @@ export default function OrganisationLayout() {
         resolver: zodResolver(addMemberSchema),
     });
 
-    const createChannelForm = useForm({
-        resolver: zodResolver(createChannelSchema),
-    });
-
 
     const addMemberMutation = useAddOrganisationMember(
         addMemberForm.setError,
         setAddMemberOpen
     );
-
-    const createChannelMutation =
-        useCreateChannel(organisationId);
 
 
     function sendMessage() {
@@ -221,25 +209,6 @@ export default function OrganisationLayout() {
             );
         },
     });
-
-
-    const onCreateChannelSubmit = (channelData) => {
-        createChannelMutation.mutate(channelData, {
-            onSuccess: () => {
-                createChannelForm.reset();
-                setCreateChannelOpen(false);
-            },
-
-            onError: (error) => {
-                createChannelForm.setError("name", {
-                    type: "server",
-                    message:
-                        error.response?.data?.message ||
-                        "Failed to create channel",
-                });
-            },
-        });
-    };
 
 
     /*
@@ -363,7 +332,7 @@ export default function OrganisationLayout() {
                                 <button
                                     className="w-full p-2 text-left text-sm text-zinc-400 hover:bg-zinc-800 hover:text-white"
                                     onClick={() =>
-                                        setCreateChannelOpen(true)
+                                        setOpen(true)
                                     }
                                 >
                                     + Add channel
@@ -371,54 +340,7 @@ export default function OrganisationLayout() {
 
                             )}
 
-
-                            <Modal
-                                open={createChannelOpen}
-                                onOpenChange={setCreateChannelOpen}
-                                title="Create a Channel"
-                                description="Create a new channel for this organisation."
-                                submitText="Create Channel"
-                                onSubmit={createChannelForm.handleSubmit(
-                                    onCreateChannelSubmit
-                                )}
-                                isSubmitting={
-                                    createChannelMutation.isPending
-                                }
-                            >
-
-                                <Field>
-
-                                    <Label htmlFor="channel-name">
-                                        Channel name
-                                    </Label>
-
-                                    <Input
-                                        {...createChannelForm.register(
-                                            "name"
-                                        )}
-                                        id="channel-name"
-                                        placeholder="general"
-                                    />
-
-                                    {createChannelForm.formState.errors.name && (
-
-                                        <span className="text-sm text-red-500">
-
-                                            {
-                                                createChannelForm
-                                                    .formState
-                                                    .errors
-                                                    .name
-                                                    .message
-                                            }
-
-                                        </span>
-
-                                    )}
-
-                                </Field>
-
-                            </Modal>
+                            <CreateChannelModal open={open} onOpenChange={setOpen} organisationId={organisationId}/>
 
                         </SidebarGroupContent>
 

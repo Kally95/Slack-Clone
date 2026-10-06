@@ -45,6 +45,10 @@ export const routes = [
                 ],
             },
         ],
+    },
+    {
+        path: "/app/organisations",
+        element: <h1>You're in "/app/organisations"</h1>
     }
 
 ];

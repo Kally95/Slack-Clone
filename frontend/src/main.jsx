@@ -15,14 +15,16 @@ export const router = createBrowserRouter(routes);
 
 createRoot(document.getElementById("root")).render(
     <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-            <Toaster position="top-right"/>
-            <TooltipProvider>
-                 <CookiesProvider>
-                    <RouterProvider router={router}/>
-                 </CookiesProvider>
-            </TooltipProvider>
-            <ReactQueryDevtools initialIsOpen={false}/>
-        </AuthProvider>
+        <CookiesProvider>
+            <AuthProvider>
+                <Toaster position="top-right"/>
+                <TooltipProvider>
+
+                        <RouterProvider router={router}/>
+
+                </TooltipProvider>
+                <ReactQueryDevtools initialIsOpen={false}/>
+            </AuthProvider>
+        </CookiesProvider>
     </QueryClientProvider>
 );

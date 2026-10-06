@@ -28,8 +28,6 @@ import {Textarea} from "@/components/ui/textarea.jsx";
 import {useAuth} from "@/contexts/AuthContext.jsx";
 import {useNavigate} from "react-router-dom";
 import api from "../src/api/client.js"
-import OrganisationRail from "@/components/ui/OrganisationRail.jsx";
-
 
 export default function App() {
     const [isConnected, setIsConnected] = useState(false);
@@ -48,7 +46,7 @@ export default function App() {
 
         getOrganisations();
     }, []);
-    console.log(organisations)
+
     useEffect(() => {
         function onConnect() {
             console.log("Connected with id:", socket.id);

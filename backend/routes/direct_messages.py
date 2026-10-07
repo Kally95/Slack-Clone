@@ -8,7 +8,7 @@ from models import (
     OrganisationMember,
 )
 from schemas.direct_conversation_schema import (
-    DirectConversationSchema,
+    direct_conversation_schema,
     direct_conversations_schema,
 )
 from utils.auth_helpers import get_membership_or_none
@@ -43,7 +43,7 @@ def get_direct_conversations(organisation_id):
 
 
 @blp.route(
-    "/organisations/<int:organisation_id>/direct-conversations/<int:organisation_member_id>",
+    "/organisations/<int:organisation_id>/direct-conversations/<int:recipient_user_id>",
     methods=["POST"],
 )
 @login_required

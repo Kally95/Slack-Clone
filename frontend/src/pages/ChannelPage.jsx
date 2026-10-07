@@ -14,7 +14,6 @@ export default function ChannelPage() {
     const latestMessageRef = useRef()
     const {channelId} = useParams();
     const {data: channel} = useGetChannel(channelId)
-    console.log(channel)
     const [input, setInput] = useState("");
     const createMessageMutation = useCreateChannelMessage(channelId)
     const [isTyping, setIsTyping] = useState(false)

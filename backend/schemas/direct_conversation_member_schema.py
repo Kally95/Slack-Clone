@@ -1,5 +1,6 @@
 from marshmallow import fields
 from extensions import ma
+from schemas.user_schema import UserSchema
 
 
 class DirectConversationMemberSchema(ma.Schema):
@@ -7,7 +8,7 @@ class DirectConversationMemberSchema(ma.Schema):
     user_id = fields.Int(dump_only=True)
     created_at = fields.DateTime(dump_only=True)
 
-    user = fields.Nested("UserSchema")
+    user = fields.Nested(UserSchema)
 
 
 direct_conversation_member_schema = DirectConversationMemberSchema()

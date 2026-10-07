@@ -25,7 +25,7 @@ import {
     useOrganisation,
 } from "@/hooks/useOrganisations.js";
 import {useChannels, useCreateChannel} from "@/hooks/useChannels.js";
-import {useDirectConversations} from "@/hooks/useDirectConversations.js";
+import {useCreateDirectConversation, useGetDirectConversations} from "@/hooks/useDirectConversations.js";
 import {socket} from "@/socket.js";
 import {
     Sidebar,
@@ -79,6 +79,8 @@ export default function OrganisationLayout() {
     const navigate = useNavigate();
     const {organisationId} = useParams();
     const [open, setOpen] = useState(false);
+    const createDmMutation = useCreateDirectConversation(organisationId)
+
     /*
      * This is the gatekeeper query.
      *
@@ -117,10 +119,11 @@ export default function OrganisationLayout() {
 
     const {
         data: directConversations = [],
-    } = useDirectConversations(
-        organisationId,
-        canAccessOrganisation
+    } = useGetDirectConversations(
+        organisationId
     );
+
+    console.log("direct conversations list: ", directConversations.conversations)
 
     const {
         data: organisationMembers = [],
@@ -128,28 +131,24 @@ export default function OrganisationLayout() {
         organisationId,
         canAccessOrganisation
     );
-
+    console.log(organisationMembers, " ", directConversations)
     const [, setCookie] = useCookies(["currentChannel"]);
 
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
     const [addMemberOpen, setAddMemberOpen] = useState(false);
 
-
     const isAdmin =
         organisation?.current_user_membership?.admin === true;
-
 
     const addMemberForm = useForm({
         resolver: zodResolver(addMemberSchema),
     });
 
-
     const addMemberMutation = useAddOrganisationMember(
         addMemberForm.setError,
         setAddMemberOpen
     );
-
 
     function sendMessage() {
         if (!input.trim()) return;
@@ -163,13 +162,11 @@ export default function OrganisationLayout() {
         setInput("");
     }
 
-
     function joinGeneral() {
         socket.emit("join_room", {
             room: `organisation:${organisationId}:general`,
         });
     }
-
 
     const onAddMemberSubmit = (data) => {
         addMemberMutation.mutate({
@@ -178,47 +175,6 @@ export default function OrganisationLayout() {
         });
     };
 
-
-    const startConversationMutation = useMutation({
-        mutationFn: (recipientUserId) => {
-            console.log(
-                "Starting conversation with:",
-                recipientUserId
-            );
-
-            return api.post(
-                `/organisations/${organisationId}/direct-conversations/${recipientUserId}`
-            );
-        },
-
-        onSuccess: ({data}) => {
-            console.log(
-                "Conversation response:",
-                data
-            );
-
-            navigate(
-                `/app/organisations/${organisationId}/direct-messages/${data.id}`
-            );
-        },
-
-        onError: (error) => {
-            console.error(
-                "Failed to start conversation:",
-                error.response?.status,
-                error.response?.data || error.message
-            );
-        },
-    });
-
-
-    /*
-     * While the backend is deciding whether the logged-in user
-     * has access to this organisation, don't render the workspace.
-     *
-     * This also prevents cached organisation data belonging to a
-     * previous session from briefly appearing.
-     */
     if (organisationLoading || organisationFetching) {
         return (
             <div className="ml-16 p-5">
@@ -227,15 +183,6 @@ export default function OrganisationLayout() {
         );
     }
 
-
-    /*
-     * If the backend says this organisation doesn't exist or the
-     * logged-in user isn't allowed to access it, send them back
-     * to /app.
-     *
-     * AppIndexRedirect can then send them to their valid saved
-     * organisation if they have one.
-     */
     if (
         organisationError?.response?.status === 403 ||
         organisationError?.response?.status === 404
@@ -421,8 +368,10 @@ export default function OrganisationLayout() {
                                                                     member.id
                                                                 }
                                                                 onClick={() =>
-                                                                    startConversationMutation.mutate(
-                                                                        member.user.id
+                                                                    createDmMutation.mutate({
+                                                                            recipient_user: member?.user.id,
+                                                                            organisation_id: organisationId
+                                                                        }
                                                                     )
                                                                 }
                                                             >
@@ -473,16 +422,14 @@ export default function OrganisationLayout() {
 
                                         <NavLink
                                             key={conversation.id}
-                                            to={`/direct-conversations/${conversation.id}`}
+                                            to={`direct-messages/${conversation.id}`}
                                             className="w-full p-2 text-left text-sm text-zinc-400 hover:bg-zinc-800 hover:text-white block"
                                         >
 
                                             {conversation.members
-                                                ?.map(
-                                                    (member) =>
-                                                        member.username
-                                                )
-                                                .join(", ") ||
+                                                    ?.filter(member => member.user.id !== user.id)
+                                                    .map(member => member.user.username)
+                                                    .join(", ") ||
                                                 "Empty Chat"}
 
                                         </NavLink>
@@ -492,9 +439,7 @@ export default function OrganisationLayout() {
 
                         </SidebarGroupContent>
 
-
                         <hr/>
-
 
                         <SidebarGroupContent>
 
@@ -721,7 +666,7 @@ export default function OrganisationLayout() {
                         messages,
                         input,
                         setInput,
-                        sendMessage,
+                        channels
                     }}
                 />
 
